@@ -1,0 +1,22 @@
+<!-- 顶部统一标题（样式用你全局的 .global-header） -->
+<view class="global-header">支持我们</view>
+
+<!-- 页面主体：中间先留空，后面你想放什么再加 -->
+<view class="contact-page">
+
+<!-- 只有 showImage 为 true 才显示 -->
+<image
+  wx:if="{{showImage}}"
+  class="contact-img"
+  src="cloud://cloud1-5gpzszjh5b3c4a84.636c-cloud1-5gpzszjh5b3c4a84-1385178608/images/小程序2.png"
+  mode="widthFix"
+></image>
+
+</view>
+
+<!-- 底部返回按钮 -->
+<view class="footer">
+  <view class="back-btn" bindtap="onBackTap">
+    返回
+  </view>
+</view>

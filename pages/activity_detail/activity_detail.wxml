@@ -1,0 +1,185 @@
+<!-- pages/activity_detail/activity_detail.wxml -->
+
+<!-- 全局统一顶栏 -->
+<view class="global-header">{{activityName}}</view>
+
+<!-- 页面主体容器 -->
+<view class="container activity-detail-page">
+
+  <!-- 活动照片列表 -->
+  <block wx:if="{{items.length > 0}}">
+    <block wx:for="{{items}}" wx:key="id" wx:for-item="item">
+      <view class="card">
+
+        <!-- 左上角星星（不旋转、不圆角） -->
+        <image
+          class="corner-star"
+          src="cloud://cloud1-5gpzszjh5b3c4a84.636c-cloud1-5gpzszjh5b3c4a84-1385178608/images/band_1.png"
+          mode="aspectFit"
+        />
+
+        <!-- 左侧缩略图：包一层用于渐变 -->
+        <view class="thumb-wrap">
+          <image
+            class="thumb"
+            src="{{item.thumbUrl || defaultThumb}}"
+            mode="aspectFill"
+            data-id="{{item.id}}"
+            bindtap="goPhoto"
+          />
+        </view>
+
+        <!-- 右侧信息 -->
+        <view class="info">
+          <view class="row user">
+            <image class="avatar" src="{{item.avatarUrl || defaultThumb}}" mode="aspectFill" />
+            <text class="nickname">{{item.nickname || '匿名用户'}}</text>
+          </view>
+
+          <view class="row location">地点：{{item.locationName || '未知'}}</view>
+          <view class="row message">留言：{{item.message || '（无）'}}</view>
+
+          <view class="row meta">
+            <text class="like-text">赞{{item.likesCount}}</text>
+            <text class="time">{{item.createdAtText}}</text>
+          </view>
+
+          <!-- 操作按钮 -->
+          <view class="btn-row">
+            <button class="btn view" data-id="{{item.id}}" catchtap="goPhoto">查看</button>
+            <button class="btn like" data-id="{{item.id}}" catchtap="likeWork">点赞</button>
+          </view>
+        </view>
+
+      </view>
+    </block>
+  </block>
+
+  <!-- 加载更多 / 已到底 -->
+  <view wx:if="{{items.length > 0}}">
+    <view wx:if="{{hasMore}}" class="load-more-wrapper">
+      <button
+        class="load-more-btn"
+        bindtap="onLoadMore"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+    <view wx:else class="load-more-end">
+      <text>已经到底啦</text>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <block wx:if="{{items.length === 0}}">
+    <view class="empty">暂无已审核作品</view>
+  </block>
+
+  <!-- ✅ 悬浮按钮：排序 / 筛选 / 发布（严格同列表页） -->
+  <view class="fab fab-sort" bindtap="openSortPanel">
+    <text class="fab-text">排序</text>
+  </view>
+
+  <view class="fab fab-filter" bindtap="openFilter">
+    <text class="fab-text">筛选</text>
+  </view>
+
+  <view class="fab fab-publish" bindtap="goToPublish">
+    <text class="plus">＋</text>
+  </view>
+
+  <!-- 通用遮罩：任一面板打开时显示 -->
+  <view
+    wx:if="{{showFilterPanel || showSortPanel}}"
+    class="mask"
+    catchtouchmove="noop"
+    bindtap="closePanels"
+  ></view>
+
+  <!-- ✅ 筛选面板（按角色） -->
+  <view
+    wx:if="{{showFilterPanel}}"
+    class="filter-panel"
+    catchtouchmove="noop"
+  >
+    <view class="panel-title">按角色筛选</view>
+    <scroll-view class="panel-body" scroll-y>
+      <block wx:for="{{roleList}}" wx:key="id" wx:for-item="item">
+        <label
+          class="role-item"
+          bindtap="toggleRole"
+          data-role-id="{{item.id}}"
+        >
+          <checkbox checked="{{checkedRoleIdSet[item.id]}}"></checkbox>
+          <text class="role-name">{{item.name}}</text>
+        </label>
+      </block>
+    </scroll-view>
+    <view class="panel-actions">
+      <button class="btn ghost" bindtap="resetFilter">清空</button>
+      <button class="btn primary" bindtap="applyFilter">应用</button>
+    </view>
+  </view>
+
+  <!-- ✅ 排序面板（同列表页） -->
+  <view
+    wx:if="{{showSortPanel}}"
+    class="filter-panel"
+    catchtouchmove="noop"
+  >
+    <view class="panel-title sort-title">排序方式</view>
+
+    <view class="sort-list">
+      <view
+        class="sort-item {{currentSort === 'likes7d' ? 'active' : ''}}"
+        data-value="likes7d"
+        bindtap="setSort"
+      >
+        近7天点赞（从高到低）
+      </view>
+
+      <view
+        class="sort-item {{currentSort === 'likes' ? 'active' : ''}}"
+        data-value="likes"
+        bindtap="setSort"
+      >
+        按点赞数（从高到低）
+      </view>
+
+      <view
+        class="sort-item {{currentSort === 'time' ? 'active' : ''}}"
+        data-value="time"
+        bindtap="setSort"
+      >
+        按时间（最新优先）
+      </view>
+
+      <view
+        class="sort-item {{currentSort === 'random' ? 'active' : ''}}"
+        data-value="random"
+        bindtap="setSort"
+      >
+        随机排序
+      </view>
+    </view>
+
+    <view class="panel-actions">
+      <button class="btn sort-primary" bindtap="closeSortPanel">关闭</button>
+    </view>
+  </view>
+
+  <!-- ============ 进入弹窗说明图（右上角关闭） ============ -->
+  <view
+    wx:if="{{showGuide}}"
+    class="guide-mask"
+    catchtouchmove="noop"
+  >
+    <view class="guide-panel" catchtap="noop">
+      <image class="guide-img" src="{{guideImg}}" mode="widthFix" />
+      <view class="guide-close" bindtap="closeGuide">×</view>
+    </view>
+  </view>
+
+</view>

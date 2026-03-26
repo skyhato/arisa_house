@@ -1,0 +1,12 @@
+<view class="login-page">
+  <!-- Logo 图片 -->
+  <image class="logo" src="cloud://cloud1-5gpzszjh5b3c4a84.636c-cloud1-5gpzszjh5b3c4a84-1385178608/images/arisa.png" mode="widthFix"></image>
+
+  <!-- 欢迎文字 -->
+  <view class="welcome-text">欢迎来到有咲的小屋</view>
+
+  <!-- 登录按钮 -->
+  <button class="btn-login" bindtap="onWeixinLogin" loading="{{loading}}">
+    使用微信登录
+  </button>
+</view>

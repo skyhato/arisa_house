@@ -1,0 +1,61 @@
+{
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于在发布时选择地点"
+    }
+  },
+  "pages": [
+    "pages/index/index",
+    "pages/my/my",
+    "pages/rankings/rankings",
+    "pages/publish/publish",
+    "pages/login/login",
+    "pages/photo/photo",
+    "pages/register/register",
+    "pages/profile/profile",
+    "pages/works/works",
+    "pages/admin/admin",
+    "pages/notice/notice",
+    "pages/contact/contact",
+    "pages/sponsor-list/sponsor-list",
+    "pages/userAdmin/userAdmin",
+    "pages/guess/guess",
+    "pages/featured/featured",
+    "pages/activity/activity",
+    "pages/activity_detail/activity_detail"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#ffffff",
+    "selectedColor": "#FF99CC",
+    "backgroundColor": "#aa66dd",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "地图",
+        "iconPath": "33.png",
+        "selectedIconPath": "33.png"
+      },
+      {
+        "pagePath": "pages/rankings/rankings",
+        "text": "列表",
+        "iconPath": "22.png",
+        "selectedIconPath": "22.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "11.png",
+        "selectedIconPath": "11.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

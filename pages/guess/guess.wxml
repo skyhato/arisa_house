@@ -1,0 +1,169 @@
+<!-- pages/guess/guess.wxml -->
+
+<!-- 顶部统一标题 -->
+<view class="global-header">猜猜宝</view>
+
+<view class="guess-page">
+  <!-- 副标题 -->
+  <view class="sub-title">猜猜我在哪</view>
+  <!-- <view class="sub-tip">（50km 内算你正确）</view> -->
+
+  <!-- 图片区域 -->
+  <view class="image-box">
+    <image
+      class="guess-img"
+      src="{{imageUrl}}"
+      mode="widthFix"
+      bindtap="onPreviewImage"
+    />
+  </view>
+
+  <!-- 地址选择 -->
+  <view class="address-section">
+    <view class="address-label">选择你猜的地点（50km内算正确）</view>
+
+    <button
+      class="address-btn {{guessLocationName ? 'selected' : ''}}"
+      bindtap="onChooseLocation"
+    >
+      {{ guessLocationName ? '已选择' : '点击选择地址' }}
+    </button>
+
+    <view class="address-tip" wx:if="{{guessLocationName}}">
+      当前选择：{{guessLocationName}}
+    </view>
+  </view>
+
+  <!-- 提交 / 放弃 按钮（已上移到地址下面） -->
+  <view class="submit-section">
+    <view class="submit-row">
+      <button
+        class="giveup-btn"
+        bindtap="onGiveUp"
+        disabled="{{!canSubmit}}"
+      >
+        放弃
+      </button>
+      <button
+        class="submit-btn"
+        bindtap="onSubmit"
+        disabled="{{!canSubmit}}"
+      >
+        提交
+      </button>
+    </view>
+  </view>
+
+  <!-- 次数与广告 -->
+  <view class="counter-box">
+    <view class="counter-row">
+      <text>今日剩余次数：</text>
+      <text class="counter-num">{{remaining}}</text>
+    </view>
+    <view class="counter-extra">
+      <text>每日免费 3 次，猜对奖励 1 次</text>
+    </view>
+    <button
+      class="ad-btn"
+      size="mini"
+      bindtap="onWatchAd"
+      disabled="{{!canWatchAd}}"
+    >
+      看广告再猜一次
+    </button>
+  </view>
+
+  <!-- 本周战绩卡片 -->
+  <view class="week-box">
+    <view class="week-title">本周战绩</view>
+
+    <view class="week-row">
+      <view class="week-item">
+        <view class="week-label">本周猜对</view>
+        <view class="week-value">{{weeklyCorrect}}</view>
+      </view>
+
+      <view class="week-item">
+        <view class="week-label">本周排名</view>
+        <view class="week-value">{{weeklyRank}}</view>
+      </view>
+
+      <!-- 新增：距离上一名（张） -->
+      <view class="week-item">
+        <view class="week-label">距离上一名</view>
+        <view class="week-value">{{weeklyDiff}}</view>
+      </view>
+    </view>
+
+    <view class="week-tip">
+      每周一清零，统计本周全部猜对次数
+    </view>
+  </view>
+
+  <!-- 本周前 5 名（在本周战绩下面） -->
+  <view class="top5-box" wx:if="{{weeklyTopList && weeklyTopList.length}}">
+    <view class="top5-title">本周前 5 名</view>
+    <view
+      class="top5-row"
+      wx:for="{{weeklyTopList}}"
+      wx:key="rank"
+    >
+      <view class="top5-rank">NO.{{item.rank}}</view>
+      <view class="top5-name">{{item.displayName}}</view>
+      <view class="top5-score">{{item.correctCount}} 次</view>
+    </view>
+  </view>
+</view>
+
+<!-- 结果弹窗：显示地点、留言、点赞 -->
+<view
+  class="result-mask"
+  wx:if="{{showResultPanel}}"
+  catchtouchmove="true"
+>
+  <view class="result-panel">
+    <view class="result-title">这张照片的信息</view>
+
+    <view class="result-field">
+      <text class="result-label">地点：</text>
+      <text class="result-text">
+        {{currentLocationName || '未命名地点'}}
+      </text>
+    </view>
+
+    <view class="result-field result-message-field">
+      <text class="result-label">留言：</text>
+      <text class="result-text">
+        {{currentMessage || '（无留言）'}}
+      </text>
+    </view>
+
+    <view class="result-like-row">
+      <button
+        class="like-btn {{hasLiked ? 'liked' : ''}}"
+        bindtap="onToggleLike"
+      >
+        {{hasLiked ? '已点赞' : '点赞'}} · {{likeCount}}
+      </button>
+    </view>
+
+    <view class="result-actions">
+      <button class="result-btn secondary" bindtap="onCloseResult">
+        关闭
+      </button>
+      <button class="result-btn primary" bindtap="onNextFromResult">
+        下一张
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 底部返回按钮 -->
+<view class="footer">
+  <view class="back-btn" bindtap="onBackTap">
+    返回
+  </view>
+</view>
+
+<!-- 按钮下面专门留一点空白（控制按钮下面离底的距离） -->
+<view class="bottom-space"></view>

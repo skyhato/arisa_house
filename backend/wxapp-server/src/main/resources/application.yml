@@ -1,0 +1,40 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+
+spring:
+    data:
+        redis:
+            host: localhost
+            port: 6379
+            password: ""
+            database: 0
+            timeout: 5000ms
+    datasource:
+        url: jdbc:mysql://localhost:3306/wxapp_db?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+        username: root
+        password: 123456
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+    jackson:
+        serialization:
+            write-dates-as-timestamps: false
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+
+    security:
+        user:
+            name: arisa
+            password: 123456
+
+
+wx:
+    appid: wxd7ccde290baa941b
+    secret: bc0e4a3db808717fa8802d791dd2837b
+    loginUrl: https://api.weixin.qq.com/sns/jscode2session
+    
+
+

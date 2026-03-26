@@ -1,0 +1,88 @@
+<!-- pages/admin/admin.wxml -->
+<view class="works-page">
+  <view class="header">审核管理</view>
+
+  <view class="toolbar">
+    <button
+      class="batch-btn"
+      bindtap="approveAllPending"
+      loading="{{batchLoading}}"
+      disabled="{{batchLoading || !hasPending}}"
+    >
+      {{ batchLoading ? '批量审核中...' : (hasPending ? '一键通过全部未审核' : '暂无待审核') }}
+    </button>
+  </view>
+
+  <block wx:if="{{works.length > 0}}">
+    <block wx:for="{{works}}" wx:for-item="item" wx:key="_id">
+      <view class="card">
+        <!-- 左图（点图预览原图） -->
+        <image
+          class="thumb"
+          src="{{item.thumbUrl || defaultThumb}}"
+          mode="aspectFill"
+          data-id="{{item._id}}"
+          bindtap="previewImage"
+        />
+
+        <!-- 右侧仅保留：时间/地点/上传者/活动/角色(roleNames) -->
+        <view class="info">
+          <view class="meta">
+            <view class="row">上传者：{{item.nickname || '匿名用户'}}</view>
+            <view class="row">地点：{{item.locationName || '未知'}}</view>
+            <view class="row">活动：{{item.activityName || '（无）'}}</view>
+            <view class="row">角色：{{item.roleNamesText || '（无）'}}</view>
+            <view class="row">上传时间：{{item.createdAtText || '（无）'}}</view>
+          </view>
+        </view>
+
+        <!-- 固定底部按钮栏 -->
+        <view class="btn-bar">
+          <button
+            wx:if="{{item.status === 'PENDING'}}"
+            class="btn approve"
+            data-id="{{item._id}}"
+            bindtap="approveWork"
+          >通过</button>
+
+          <button
+            wx:elif="{{item.status === 'APPROVED'}}"
+            class="btn return"
+            data-id="{{item._id}}"
+            bindtap="returnWork"
+          >退回</button>
+
+          <button
+            class="btn delete"
+            data-id="{{item._id}}"
+            bindtap="deleteWork"
+          >删除</button>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <view wx:if="{{works.length > 0}}">
+    <view wx:if="{{hasMore}}" class="load-more-wrapper">
+      <button
+        class="load-more-btn"
+        bindtap="onLoadMore"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+    <view wx:else class="load-more-end">
+      <text>已经到底啦</text>
+    </view>
+  </view>
+
+  <block wx:if="{{works.length === 0}}">
+    <view class="empty">暂无作品</view>
+  </block>
+
+  <view class="footer">
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+</view>

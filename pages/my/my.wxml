@@ -1,0 +1,49 @@
+<!-- pages/my/my.wxml -->
+<view class="my-page">
+  <!-- 顶部用户卡片 -->
+  <view class="card user-card">
+    <!-- 已登录状态：头像 + 昵称 -->
+    <block wx:if="{{user && (user.openid || user.openId)}}">
+      <image
+        class="avatar"
+        src="{{user.avatarUrlResolved || defaultAvatar}}"
+        mode="aspectFill"
+        binderror="onAvatarError"
+      />
+      <view class="info">
+        <view class="name">{{ user.nickname || '微信用户' }}</view>
+        <view class="sub">ID：{{ user.openid || '未登录' }}</view>
+      </view>
+    </block>
+
+    <!-- 未登录状态：登录 / 注册按钮 -->
+    <block wx:else>
+      <view class="login-wrapper">
+        <button class="login-btn" bindtap="goLogin">登录 / 注册</button>
+      </view>
+    </block>
+  </view>
+
+  <!-- 功能区 -->
+  <view class="card menu">
+    <view class="menu-item" bindtap="goProfile">个人信息</view>
+    <view class="menu-item" bindtap="goWorks">我的作品</view>
+
+    <!-- 消息通知 + 小红点 -->
+    <view class="menu-item notice-item" bindtap="goNotice">
+      <text>消息通知</text>
+      <view wx:if="{{hasNewNotice}}" class="red-dot"></view>
+    </view>
+
+    <!-- ⭐ 新增：精选照片 -->
+    <view class="menu-item" bindtap="goFeatured">
+      精选照片
+    </view>
+
+    <view class="menu-item" bindtap="goSupport">支持我们</view>
+    <!-- <view class="menu-item" bindtap="goSponsorList">赞助列表</view> -->
+  </view>
+</view>
+
+<!-- 底部固定 退出登录 按钮 -->
+<button class="logout-btn" bindtap="onLogout">退出登录</button>

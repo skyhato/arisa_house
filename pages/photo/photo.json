@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "照片详情",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "usingComponents": {},
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
+}

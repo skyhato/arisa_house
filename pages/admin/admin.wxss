@@ -1,0 +1,187 @@
+/* ===== 页面整体 ===== */
+.works-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0 200rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.header {
+  font-size: 42rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+  color: #333;
+  text-align: center;
+  width: 100%;
+}
+
+/* 顶部工具栏 */
+.toolbar {
+  width: 92%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 40rpx;
+  box-sizing: border-box;
+}
+
+.batch-btn {
+  padding: 12rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  background-color: #07c160;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* ===== 卡片：左图右文，按钮固定在卡片底部 ===== */
+.card {
+  position: relative;
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 24rpx;
+  border: 1rpx solid #ddd;
+  box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.04);
+  margin-bottom: 30rpx;
+  overflow: hidden;
+  padding-bottom: 120rpx;
+}
+
+.thumb {
+  width: 34%;
+  height: 260rpx;
+  background: #f5f5f5;
+  flex-shrink: 0;
+  border-right: 1rpx solid #eee;
+  align-self: center;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24rpx;
+  box-sizing: border-box;
+  gap: 10rpx;
+  padding-bottom: 0;
+}
+
+.meta { flex: 1; }
+
+.row {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* ===== 固定在卡片底部的按钮栏 ===== */
+.btn-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  height: 120rpx;
+  box-sizing: border-box;
+  background: #fff;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: 1rpx solid #ddd;
+  background: #f7f7f7;
+  color: #333;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.btn.approve { background: #07c160; color: #fff; border-color: #07c160; }
+.btn.return  { background: #1677ff; color: #fff; border-color: #1677ff; }
+.btn.delete  { background: #ff4d4f; color: #fff; border-color: #ff4d4f; }
+
+/* ===== 加载更多 ===== */
+.load-more-wrapper {
+  margin: 20rpx 0 40rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-btn {
+  padding: 16rpx 60rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  background-color: #1677ff;
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.3);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.load-more-end {
+  margin: 20rpx 0 40rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ===== 空态与底部返回 ===== */
+.empty {
+  color: #666;
+  font-size: 28rpx;
+  margin-top: 20rpx;
+  text-align: center;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12rpx 40rpx 24rpx;
+  background: #ffffff;
+  border-top: 1rpx solid #eee;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  z-index: 50;
+}
+
+.back-btn {
+  width: 60%;
+  height: 88rpx;
+  background: #f5f5f5;
+  color: #666;
+  border-radius: 36rpx;
+  font-size: 30rpx;
+  border: 1rpx solid #ddd;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}

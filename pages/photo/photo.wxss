@@ -1,0 +1,476 @@
+.page {
+  min-height: 100vh;
+  /* background: #f7f8fa; */
+  padding: 24rpx;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* ① 用户信息 */
+.user-row {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.05);
+  margin-top: 150rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ✅ 保留：精选照片时黄色卡片 */
+.user-row.featured {
+  background: #fff7d6;
+}
+
+/* ✅ 右侧活动封面背景 */
+.user-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* ✅ 渐变更靠左：左侧更早开始“变透”，让右侧封面更明显 */
+.user-bg-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,1) 0%,
+    rgba(255,255,255,1) 30%,
+    rgba(255,255,255,0.90) 46%,
+    rgba(255,255,255,0.35) 62%,
+    rgba(255,255,255,0.0) 100%
+  );
+}
+
+/* ✅ 确保内容在背景之上 */
+.user-row .avatar,
+.user-row .nickname,
+.user-row .badge-wrap {
+  position: relative;
+  z-index: 2;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.nickname {
+  margin-left: 20rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #222;
+}
+
+/* ✅ 标签紧跟昵称后面 */
+.badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-left: 16rpx;
+}
+
+/* ✅ 精选照片小标签（原样保留） */
+.featured-badge {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.featured-text {
+  font-size: 24rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  background: #fff1c2;
+  color: #c68b00;
+}
+
+.featured-q {
+  width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  border-radius: 50%;
+  border: 1rpx solid #c68b00;
+  font-size: 22rpx;
+  color: #c68b00;
+}
+
+/* ✅ 活动徽章 */
+.activity-badge {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  background: #f2e9ff;
+  border: 1rpx solid #d9c6ff;
+}
+.activity-text {
+  font-size: 24rpx;
+  color: #6a35c9;
+  font-weight: 700;
+}
+.activity-name {
+  font-size: 24rpx;
+  color: #6a35c9;
+  max-width: 220rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ② 原图 */
+.photo {
+  width: 100%;
+  border-radius: 50rpx;
+  background: #eee;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.06);
+}
+
+/* ③/④/⑤ 卡片基础 */
+.card {
+  background: #fff;
+  border-radius: 50rpx;
+  padding: 30rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+  color: #333;
+}
+.row {
+  display: flex;
+  align-items: baseline;
+  font-size: 28rpx;
+  color: #333;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #f2f3f5;
+}
+.row:last-child { border-bottom: none; }
+.label {
+  width: 140rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+.val { color: #222; }
+.msg {
+  font-size: 28rpx;
+  color: #222;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ----------------- 评论样式 ----------------- */
+.comment-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f6f7;
+}
+.comment-item:last-child { border-bottom: none; }
+
+.comment-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+.comment-main { flex: 1; min-width: 0; }
+
+.comment-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6rpx;
+}
+.comment-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333;
+}
+.comment-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-left: 12rpx;
+}
+.comment-content {
+  font-size: 28rpx;
+  color: #222;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.comment-empty {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+  padding: 24rpx 0 8rpx;
+}
+
+.comment-input-row {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  gap: 0;
+}
+
+.comment-input {
+  flex: 3;
+  min-height: 72rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+  background: #f7f8fa;
+  border-radius: 12rpx 0 0 12rpx;
+  border: 1rpx solid #eef0f3;
+  border-right: none;
+  box-sizing: border-box;
+  border-radius: 50rpx;
+}
+
+.comment-send {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 12rpx 12rpx 0;
+  background: #aa66dd;
+  border-radius: 50rpx;
+  color: #fff;
+  font-size: 28rpx;
+  border: 1rpx solid #aa66dd;
+  box-sizing: border-box;
+}
+
+.load-more, .load-done {
+  text-align: center;
+  color: #666;
+  font-size: 26rpx;
+  padding-top: 8rpx;
+}
+
+/* 底部操作条 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: #ffffffc0;
+  backdrop-filter: saturate(180%) blur(8px);
+  display: flex;
+  gap: 20rpx;
+  z-index: 10;
+}
+
+/* 底部按钮统一基础样式 */
+.btn-like,
+.btn-back {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: 2rpx solid #ccc;
+  background: #fff;
+  color: #333;
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-like.liked {
+  border-color: #ff5a5f;
+  color: #ff5a5f;
+  background: #fff5f5;
+}
+
+.btn-like .like-text {
+  font-size: 30rpx;
+}
+.btn-like .like-count {
+  font-size: 28rpx;
+  color: #666;
+  margin-left: 6rpx;
+}
+
+.btn-back {
+  border-color: #aa66dd;
+  background: #aa66dd;
+  color: #fff;
+}
+.btn-back:active {
+  background: #974fc7;
+}
+
+/* 删除卡片 */
+.delete-card {
+  margin-bottom: 120rpx;
+}
+
+.delete-btn {
+  width: 100%;
+  height: 80rpx;
+  border-radius: 50rpx;
+  background: #ff4d4f;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 8rpx 20rpx rgba(255, 77, 79, 0.35);
+}
+.delete-btn::after {
+  border: none;
+}
+
+.op-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+.edit-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 50rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 8rpx 20rpx rgba(22,119,255,0.25);
+}
+.edit-btn::after { border: none; }
+
+.edit-panel { margin-top: 8rpx; }
+
+.edit-input, .edit-textarea {
+  flex: 1;
+  min-height: 72rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+  background: #f7f8fa;
+  border-radius: 20rpx;
+  border: 1rpx solid #eef0f3;
+  box-sizing: border-box;
+  color: #222;
+}
+
+.role-list {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 16rpx 24rpx;
+  margin: 12rpx 0 0;
+}
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+.role-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.edit-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+.save-btn, .cancel-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+}
+.save-btn {
+  background: #aa66dd;
+  color: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(0,181,120,0.25);
+}
+.save-btn::after { border: none; }
+.cancel-btn {
+  background: #f2f3f5;
+  color: #333;
+}
+.cancel-btn::after { border: none; }
+
+.pick-loc-btn {
+  min-width: 160rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  border-radius: 30rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 26rpx;
+  border: none;
+}
+.pick-loc-btn::after { border: none; }
+
+.role-scroll {
+  max-height: 420rpx;
+  border: 1rpx solid #eef0f3;
+  border-radius: 20rpx;
+  background: #f7f8fa;
+  box-sizing: border-box;
+  padding: 16rpx;
+  margin-top: 8rpx;
+}
+
+.row.row-tags {
+  align-items: flex-start;
+}
+
+.tags-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx 12rpx;
+  padding-top: 2rpx;
+}
+
+.tag {
+  padding: 6rpx 16rpx;
+  font-size: 24rpx;
+  line-height: 30rpx;
+  border-radius: 999rpx;
+  background: #f5f5f5;
+  color: #555;
+  border: 1rpx solid #e6e6e6;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag--empty {
+  color: #999;
+  background: #fafafa;
+  border-style: dashed;
+}

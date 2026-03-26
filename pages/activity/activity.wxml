@@ -1,0 +1,36 @@
+<navigation-bar title="活动" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+
+<view class="activity-page">
+  <!-- 顶部标题（沿用你项目里 global-header 的留白策略） -->
+  <view class="global-header">活动</view>
+
+  <!-- 列表 -->
+  <block wx:if="{{list.length > 0}}">
+    <block wx:for="{{list}}" wx:key="id">
+      <view class="activity-card" data-id="{{item.id}}" bindtap="onCardTap">
+        <!-- 8:3 卡片封面 -->
+        <view class="cover-wrap">
+          <image class="cover-img" src="{{item.coverUrl}}" mode="aspectFill" lazy-load></image>
+        </view>
+
+        <view class="meta">
+          <view class="name">{{item.name}}</view>
+          <view class="time">{{item.timeText}}</view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{loading}}" class="hint">加载中...</view>
+    <view wx:if="{{!hasMore && !loading}}" class="hint">没有更多了</view>
+  </block>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty">
+    暂时没有活动
+  </view>
+
+  <!-- 底部返回按钮 -->
+  <view class="footer">
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+</view>

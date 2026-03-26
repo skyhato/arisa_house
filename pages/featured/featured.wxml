@@ -1,0 +1,93 @@
+<!-- pages/featured/featured.wxml -->
+
+<!-- 顶部统一标题 -->
+<view class="global-header">精选照片</view>
+
+<!-- 页面主体 -->
+<view class="rank-page">
+
+  <!-- 顶部标题 -->
+  <view class="header">照片精选</view>
+
+  <!-- 列表 -->
+  <block wx:if="{{items.length > 0}}">
+    <block wx:for="{{items}}" wx:key="id" wx:for-item="item">
+      <view class="card">
+
+        <!-- 左侧缩略图：点击进入详情 -->
+        <image
+          class="thumb"
+          src="{{item.thumbUrl || item.imageUrl || defaultThumb}}"
+          mode="aspectFill"
+          data-id="{{item.id}}"
+          bindtap="goPhoto"
+        />
+
+        <!-- 右侧信息 -->
+        <view class="info">
+          <!-- 用户信息 -->
+          <view class="user">
+            <image
+              class="avatar"
+              src="{{item.avatarUrl || defaultThumb}}"
+              mode="aspectFill"
+            />
+            <text class="nickname">{{item.nicknameMasked}}</text>
+          </view>
+
+          <!-- 地点与留言 -->
+          <view class="location">
+            地点：{{item.locationName || '未知'}}
+          </view>
+          <view class="message">
+            留言：{{item.message || '（无）'}}
+          </view>
+
+          <!-- 点赞与时间 -->
+          <view class="meta">
+            <text class="like-text">赞 {{item.likesCount || 0}}</text>
+            <text class="time">{{item.createdAtText}}</text>
+          </view>
+
+          <!-- 按钮行 -->
+          <view class="btn-row">
+            <button
+              class="btn view"
+              data-id="{{item.id}}"
+              catchtap="goPhoto"
+            >查看</button>
+
+            <button
+              class="btn like"
+              data-id="{{item.id}}"
+              data-index="{{index}}"
+              catchtap="onToggleLike"
+            >点赞</button>
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <!-- 加载更多 / 已到底 -->
+  <view wx:if="{{items.length > 0}}">
+    <view wx:if="{{hasMore}}" class="load-more-wrapper">
+      <button
+        class="load-more-btn"
+        bindtap="onLoadMore"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+    <view wx:else class="load-more-end">
+      <text>已经到底啦</text>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <block wx:if="{{items.length === 0}}">
+    <view class="empty">暂无精选照片</view>
+  </block>
+</view>

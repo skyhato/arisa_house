@@ -1,0 +1,98 @@
+/* 页面容器：沿用你 sponsor 页的风格 */
+.activity-page {
+  min-height: 100vh;
+  background: #dfc9f1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: 200rpx;     /* 顶部留给 global-header */
+  padding-bottom: 160rpx;  /* 底部留给返回按钮 */
+  padding-left: 24rpx;
+  padding-right: 24rpx;
+}
+
+/* 活动卡片 */
+.activity-card {
+  background: #ffffff;
+  border-radius: 50rpx;
+  padding: 18rpx 18rpx 20rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 6rpx 18rpx rgba(0,0,0,0.08);
+}
+
+/* 8:3 封面容器（圆角 50rpx） */
+.cover-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 37.5%; /* 3/8 = 0.375 */
+  border-radius: 50rpx;
+  overflow: hidden;
+  background: #f3f3f3;
+}
+
+.cover-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 文本区 */
+.meta {
+  margin-top: 16rpx;
+  padding-left: 20rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.time {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #777;
+}
+
+.hint {
+  margin: 20rpx 0 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.empty {
+  margin-top: 80rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 底部返回按钮：复用 sponsor 页样式 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  z-index: 99;
+}
+
+.back-btn {
+  width: 320rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 50rpx;
+  box-shadow: 0 6rpx 16rpx rgba(170,102,221,0.35);
+}
+
+.back-btn:active {
+  background: #9b55cc;
+}

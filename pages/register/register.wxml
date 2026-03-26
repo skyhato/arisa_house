@@ -1,0 +1,27 @@
+<view class="register-page">
+
+<view class="title">注册账号</view>
+
+<!-- 选择头像（必须使用 open-type="chooseAvatar"） -->
+<button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+  <image class="avatar"
+         src="{{avatarPreview || '/assets/avatar-placeholder.png'}}"
+         mode="aspectFill"></image>
+  <text class="avatar-tip">{{ avatarPreview ? '已选择头像' : '点击选择头像' }}</text>
+</button>
+
+<!-- 昵称输入（type="nickname" 可尝试自动填充微信昵称） -->
+<input class="nick-input"
+       type="nickname"
+       placeholder="请输入昵称"
+       maxlength="20"
+       value="{{nickname}}"
+       bindinput="onNickInput" />
+
+<button class="btn-submit" bindtap="onSubmit" loading="{{loading}}">
+  完成注册
+</button>
+
+<!-- 返回按钮（可选） -->
+<button class="btn-back" bindtap="goBack">返回</button>
+</view>

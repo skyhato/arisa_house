@@ -1,0 +1,69 @@
+<!-- 全局统一顶栏 -->
+<view class="global-header">消息通知</view>
+
+<!-- 页面容器（中间自适应滚动，由整页滚动控制） -->
+<view class="notice-page">
+
+  <!-- 内容列表：不再用 scroll-view，下拉刷新由页面原生提供 -->
+  <view class="list">
+    <block wx:if="{{loading && items.length===0}}">
+      <view class="empty">加载中…</view>
+    </block>
+
+    <block wx:elif="{{!loading && items.length===0}}">
+      <view class="empty">暂时没有新的点赞</view>
+    </block>
+
+    <block wx:for="{{items}}" wx:key="id" wx:for-item="item">
+      <view class="card" data-photoid="{{item.photoId}}" bindtap="onCardTap">
+        <!-- 左侧点赞者头像（圆形） -->
+        <image class="avatar" src="{{item.likerAvatar || defaultAvatar}}" mode="aspectFill" />
+
+        <!-- 中间文案 -->
+        <view class="content">
+          <view class="line1">
+            <text class="nick">{{item.likerName || '匿名用户'}}</text>
+            <text> {{item.actionText}}</text>
+          </view>
+          <view class="line1" wx:if="{{item.type==='comment' && item.content}}">
+            <text>{{item.content}}</text>
+          </view>
+
+          <view class="meta">
+            <text class="time">{{item.timeText}}</text>
+            <view class="dot" wx:if="{{!item.read}}"></view>
+          </view>
+        </view>
+
+        <!-- 右侧作品缩略图（正方形） -->
+        <image
+          class="thumb"
+          src="{{item.thumbFileID}}"
+          mode="aspectFill"
+          bindtap="onPreviewThumb"
+          data-src="{{item.thumbFileID}}"
+        />
+      </view>
+    </block>
+
+    <!-- 点击加载更多 -->
+    <view
+      class="load-more"
+      wx:if="{{hasMore && !loadingMore && items.length>0}}"
+      bindtap="onLoadMoreTap"
+    >
+      点击加载更多
+    </view>
+    <view class="load-more" wx:if="{{loadingMore}}">
+      加载中…
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && items.length>0}}">
+      没有更多了
+    </view>
+  </view>
+
+  <!-- 底部返回按钮（保留原样） -->
+  <view class="footer">
+    <view class="back-btn" bindtap="goBack">返回</view>
+  </view>
+</view>

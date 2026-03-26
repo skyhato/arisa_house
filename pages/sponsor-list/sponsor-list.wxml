@@ -1,0 +1,31 @@
+<!-- 顶部统一标题（使用全局 .global-header） -->
+<navigation-bar title="赞助列表" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+
+<view class="global-header">赞助列表</view>
+
+<!-- 页面主体：赞助记录列表 -->
+<scroll-view scroll-y class="sponsor-page">
+  <!-- 没有记录时的占位 -->
+  <block wx:if="{{records.length === 0}}">
+    <view class="empty">暂时还没有赞助记录</view>
+  </block>
+
+  <!-- 赞助卡片列表 -->
+  <block wx:for="{{records}}" wx:key="id">
+    <view class="sponsor-card">
+      <view class="sponsor-line">
+        {{item.name || '匿名用户'}} 赞助了 {{item.amount}} 元
+      </view>
+      <view class="sponsor-time">
+        {{item.time}}
+      </view>
+    </view>
+  </block>
+</scroll-view>
+
+<!-- 底部返回按钮 -->
+<view class="footer">
+  <view class="back-btn" bindtap="onBackTap">
+    返回
+  </view>
+</view>

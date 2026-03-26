@@ -1,0 +1,399 @@
+/* pages/guess/guess.wxss */
+
+/* 容器：按 contact-page 模板改名 */
+.guess-page {
+  min-height: 100vh;
+  background: #dfc9f1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: 200rpx;
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+  gap: 30rpx;
+  /* 不需要 padding-bottom 去搞按钮了 */
+}
+.bottom-space {
+  height: 40rpx;        /* 想多一点就 60rpx，想紧一点就 20rpx */
+  background: #dfc9f1;  /* 跟页面背景保持一致 */
+}
+
+
+
+
+/* 统一：卡片全部 50 圆角 */
+.week-box,
+.counter-box,
+.address-section,
+.result-panel,
+.top5-box {
+  background: #ffffff;
+  border-radius: 50rpx !important;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.05);
+}
+
+/* 本周战绩卡片（继承上面统一圆角） */
+.week-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.week-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 40rpx;
+}
+
+.week-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.week-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.week-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #aa66dd;
+}
+
+.week-tip {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.sub-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.sub-tip {
+  font-size: 24rpx;
+  text-align: center;
+  color: #666;
+}
+
+/* 图片区域：宽度=卡片同宽（100%），左右跟随卡片内边距 */
+.image-box {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: center;
+}
+
+/* ❗图片改为和卡片一样宽（100%）+ 圆角 50rpx */
+.guess-img {
+  width: 100%;
+  border-radius: 50rpx !important;
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.1);
+  display: block;
+}
+
+/* 次数与广告 */
+.counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.counter-num {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #aa66dd;
+}
+
+.counter-extra {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #888;
+}
+
+.ad-btn {
+  margin-top: 18rpx;
+  align-self: flex-end;
+  border-radius: 999rpx;
+  padding: 0 28rpx;
+  font-size: 24rpx;
+  background: #ffcf69;
+  color: #333;
+  border: none;
+}
+
+.ad-btn::after {
+  border: none;
+}
+
+.ad-btn:active {
+  background: #f6c258;
+}
+
+/* 地址选择 */
+.address-label {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.address-btn {
+  margin-top: 8rpx;
+  border-radius: 999rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  border: none;
+}
+
+.address-btn::after { border: none; }
+
+.address-btn:active {
+  background: #9b55cc;
+}
+
+.address-btn.selected {
+  background: #4da3ff;
+  color: #fff;
+}
+
+.address-btn.selected:active {
+  background: #398de6;
+}
+
+.address-tip {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 提交 / 放弃 按钮（移动到地址下面，样式不变） */
+.submit-section {
+  margin-top: 10rpx;
+}
+
+.submit-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20rpx;
+}
+
+.giveup-btn {
+  flex: 1;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #666;
+  font-size: 32rpx;
+  padding: 24rpx 0;
+  border: 2rpx solid #dddddd;
+}
+
+.giveup-btn::after { border: none; }
+
+.giveup-btn:active {
+  background: #f3f3f3;
+}
+
+.submit-btn {
+  flex: 1;
+  border-radius: 999rpx;
+  background: #1aad19;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 24rpx 0;
+  border: none;
+}
+
+.submit-btn::after { border: none; }
+
+.submit-btn:active {
+  background: #179117;
+}
+
+/* 本周前 5 名 */
+.top5-box {
+  margin-top: 0;
+}
+
+.top5-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.top5-row {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.top5-rank {
+  width: 120rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #aa66dd;
+}
+
+.top5-name {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+}
+
+.top5-score {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 弹窗遮罩 */
+.result-mask {
+  position: fixed;
+  left: 0; right: 0;
+  top: 0; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 199;
+}
+
+/* 弹窗卡片（同样做 50 圆角） */
+.result-panel {
+  width: 82%;
+  max-width: 700rpx;
+  background: #ffffff;
+  border-radius: 50rpx !important;
+  padding: 32rpx 28rpx 28rpx;
+  box-shadow: 0 12rpx 32rpx rgba(0,0,0,0.18);
+  box-sizing: border-box;
+}
+
+.result-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.result-field { margin-top: 10rpx; }
+
+.result-label {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.result-text {
+  font-size: 26rpx;
+  color: #333;
+  word-break: break-word;
+}
+
+.result-message-field { margin-top: 16rpx; }
+
+.result-like-row {
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.like-btn {
+  min-width: 260rpx;
+  padding: 14rpx 0;
+  border-radius: 999rpx;
+  border: none;
+  background: #ffeef8;
+  color: #aa66dd;
+  font-size: 26rpx;
+}
+
+.like-btn::after { border: none; }
+
+.like-btn.liked {
+  background: #aa66dd;
+  color: #ffffff;
+}
+
+/* 弹窗底部按钮 */
+.result-actions {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: row;
+  gap: 20rpx;
+}
+
+.result-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  border-radius: 999rpx;
+  border: none;
+}
+
+.result-btn::after { border: none; }
+
+.result-btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.result-btn.secondary:active {
+  background: #e6e6e6;
+}
+
+.result-btn.primary {
+  background: #aa66dd;
+  color: #ffffff;
+}
+
+.result-btn.primary:active {
+  background: #9b55cc;
+}
+
+/* 底部返回按钮 */
+.footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 30rpx;   /* 紧跟卡片下方 */
+  margin-bottom: 40rpx; /* 防止贴得太底 */
+}
+
+.back-btn {
+  width: 320rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 50rpx;
+  box-shadow: 0 6rpx 16rpx rgba(170,102,221,0.35);
+}
+
+
+.back-btn:active {
+  background: #9b55cc;
+}
+
+
+
+
+/* 让选择地址这一张卡片整体高度更大一点 */
+.address-section {
+  padding-top: 48rpx !important;
+  padding-bottom: 48rpx !important;
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx; /* 让标题-按钮-提示之间更舒展 */
+}
+
+
+

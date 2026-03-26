@@ -1,0 +1,162 @@
+/* pages/profile/profile.wxss */
+
+/* ========== 统一圆角 ========== */
+:root {}
+
+/* 页面：顶部留白减少 */
+.page {
+  min-height: 100vh;
+  background: #DFC9F1;
+  padding: 50rpx 24rpx 120rpx;   /* ✅ 原来太大：从 200rpx 降到 130rpx */
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;                     /* ✅ 卡片之间间距统一 */
+}
+
+/* 卡片：圆角统一 50rpx */
+.card {
+  width: 100%;
+  background: #fff;
+  border-radius: 50rpx;
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.06);
+  padding: 22rpx 22rpx 26rpx;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 18rpx;
+}
+
+/* 字段块 */
+.field {
+  padding: 14rpx 0;
+}
+.field + .field {
+  border-top: 1rpx solid #f1f1f1;
+}
+
+.field-label {
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+/* ✅ 两列：左 50%，右 50%（按钮右对齐） */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;                     /* ✅ 行内间距统一 */
+}
+
+.field-left {
+  flex: 0 0 50%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.field-right {
+  flex: 0 0 50%;
+  min-width: 0;                   /* ✅ 新增：防止 flex 子项溢出 */
+  display: flex;
+  justify-content: flex-end;      /* ✅ 右对齐 */
+  align-items: center;
+}
+
+/* 头像保持圆形更自然（如果你坚持统一 50rpx，把 50% 改成 50rpx） */
+.avatar {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 50%;
+  background: #f2f2f2;
+  overflow: hidden;
+}
+
+/* 输入框：圆角统一 50rpx，和按钮高度统一 */
+.input {
+  width: 100%;
+  height: 88rpx;                  /* ✅ 与按钮同高 */
+  padding: 0 22rpx;
+  border-radius: 50rpx;
+  border: 2rpx solid #eee;
+  background: #fafafa;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* ========== 按钮：全站统一“皮肤” ========== */
+button::after {
+  border: none !important;        /* ✅ 干掉默认边框，不然圆角/颜色像失效 */
+}
+
+.btn {
+  height: 88rpx;                  /* ✅ 上下按钮一样大 */
+  min-width: 0;                   /* ✅ 修复：去掉 320rpx 硬下限，避免顶部按钮撑破卡片 */
+  max-width: 100%;                /* ✅ 修复：不允许超过容器宽度 */
+  padding: 0 28rpx;
+
+  border-radius: 50rpx;           /* ✅ 圆角统一 50 */
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1;
+  box-sizing: border-box;         /* ✅ 修复：padding 不把按钮算爆 */
+}
+
+/* ✅ 修复：顶部右侧按钮在“右半区”内铺满，不再溢出 */
+.field-right .btn {
+  width: 100%;
+}
+
+/* 全宽按钮（下方按钮组用） */
+.btn-full {
+  width: 100%;
+  min-width: 0;
+}
+
+/* 按钮组：间距统一 */
+.btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;                     /* ✅ 间距统一 */
+}
+
+/* 主题按钮 */
+.btn-primary {
+  background-color: #AA66DD;
+  color: #fff;
+  box-shadow: 0 10rpx 24rpx rgba(170, 102, 221, 0.25);
+}
+.btn-primary:active { opacity: 0.92; }
+
+/* 危险按钮 */
+.btn-danger {
+  background-color: #ff4d4f;
+  color: #fff;
+  box-shadow: 0 10rpx 24rpx rgba(255, 77, 79, 0.20);
+}
+.btn-danger:active { opacity: 0.92; }
+
+/* 幽灵按钮 */
+.btn-ghost {
+  background: #fff;
+  color: #333;
+  border: 2rpx solid #e9e9e9;
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.06);
+}
+.btn-ghost:active { opacity: 0.92; }

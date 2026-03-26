@@ -1,0 +1,46 @@
+/* pages/contact/contact.wxss *//* 页面容器：背景色、上下预留空间（模仿 notice-page） */
+.contact-page {
+  min-height: 100vh;
+  background: #dfc9f1;      /* 和消息通知那页一致的淡紫 */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: 200rpx;       /* 顶部留给 .global-header */
+  padding-bottom: 160rpx;    /* 底部留给返回按钮 */
+}
+
+/* 底部返回按钮：沿用你原来的样式 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  z-index: 99;
+}
+
+.back-btn {
+  width: 320rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 50rpx;
+  box-shadow: 0 6rpx 16rpx rgba(170,102,221,0.35);
+}
+
+.back-btn:active {
+  background: #9b55cc;
+}
+/* 中间图片：自适应宽度、水平居中 */
+.contact-img {
+  width: 90%;
+  max-width: 700rpx;
+  margin: 0 auto;
+  display: block;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.1);
+}

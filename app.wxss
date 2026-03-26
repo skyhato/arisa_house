@@ -1,0 +1,49 @@
+/** app.wxss **/
+
+/* 整体背景色保持淡紫色 */
+page {
+  background-color: #dfc9f1;  /* 淡紫色背景 */
+  min-height: 100vh;
+}
+
+/* 页面容器，留出顶部空间 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 200rpx 0; /* 顶部栏留白 */
+  box-sizing: border-box;
+}
+
+/* ========== 顶部栏样式 ========== */
+.global-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 160rpx;
+  background-color: #aa66dd; /* 深紫色标题栏 */
+  color: #ffffff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: 42rpx;
+  font-weight: bold;
+  padding-bottom: 20rpx;
+  z-index: 100;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+/* 限制卡片最大宽度，保持居中布局 */
+.card {
+  width: 95%;             /* 相对屏幕留边 */
+  max-width: 700rpx;      /* 保持原先的视觉宽度 */
+  margin: 0 auto 40rpx;   /* 居中并与下方间隔 */
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.08);
+  padding: 32rpx;
+  box-sizing: border-box;
+  border-radius: 50rpx ;
+}

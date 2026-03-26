@@ -1,0 +1,200 @@
+<!-- pages/publish/publish.wxml -->
+
+<!-- 隐藏 Canvas：缩略图 -->
+<canvas id="thumbCanvas" type="2d"
+        style="position:absolute;left:-9999px;top:-9999px;width:200px;height:200px;"></canvas>
+
+<!-- 隐藏 Canvas：圆角 + 阴影 marker -->
+<canvas id="markerCanvas" type="2d"
+        style="position:absolute;left:-9999px;top:-9999px;width:260px;height:260px;"></canvas>
+
+<view class="page">
+  <!-- 顶部标题 -->
+  <view class="global-header">上传图片</view>
+
+  <view class="container">
+
+    <!-- ① 上传图片 -->
+    <view class="card upload-box" bindtap="onChooseImage">
+      <block wx:if="{{imagePreview}}">
+        <image class="upload-preview" src="{{imagePreview}}" mode="aspectFill"></image>
+      </block>
+      <block wx:else>
+        <view class="upload-empty">
+          <text class="upload-hint">点击上传图片</text>
+          <text class="upload-sub">建议清晰、带娃、信息明确</text>
+        </view>
+      </block>
+    </view>
+
+    <!-- ✅ 每日次数卡片 -->
+    <view class="card quota-card" wx:if="{{commentEnabled}}">
+      <view class="quota-title">今日发布次数</view>
+
+      <view class="quota-row">
+        <text class="quota-label">剩余机会</text>
+        <text class="quota-value" wx:if="{{hasUnlimitedToday}}">无限</text>
+        <text class="quota-value" wx:else>{{remainingToday}} 次</text>
+      </view>
+
+      <view class="quota-row sub">
+        <text class="quota-sub">
+          已用 {{dailyUsed}} / {{dailyLimit}} 次
+          <block wx:if="{{dailyBonus}}">（额外 +{{dailyBonus}}）</block>
+          <text>服务器成本实在是太高了，敬请谅解</text>
+        </text>
+      </view>
+
+      <view class="quota-actions">
+        <button class="btn btn-ghost btn-mini"
+                hover-class="none"
+                bindtap="onWatchAdForPublish"
+                disabled="{{!canWatchAd}}">
+          看广告 +1
+        </button>
+      </view>
+    </view>
+
+    <!-- ② 选择位置信息 -->
+    <view class="card kv" bindtap="onChooseLocation" wx:if="{{commentEnabled}}">
+      <text class="kv-label">选择位置信息</text>
+      <text class="kv-value">{{ locationName ? locationName : '（未选择）' }}</text>
+    </view>
+
+    <!-- ③ 选择角色（改成 tag 展示，不用 join） -->
+    <view class="card kv" bindtap="openRolePanel" wx:if="{{commentEnabled}}">
+      <text class="kv-label">选择角色</text>
+
+      <block wx:if="{{selectedRoleNames.length}}">
+        <view class="tag-wrap">
+          <view class="tag" wx:for="{{selectedRoleNames}}" wx:key="*this">{{item}}</view>
+        </view>
+      </block>
+      <block wx:else>
+        <text class="kv-value">（未选择）</text>
+      </block>
+    </view>
+
+    <!-- ③.1 选择活动（可留空） -->
+    <view class="card kv" bindtap="openActivityPanel" wx:if="{{commentEnabled}}">
+      <text class="kv-label">选择活动（可留空）</text>
+      <text class="kv-value">{{ selectedActivityName || '（未选择）' }}</text>
+    </view>
+
+    <!-- ④ 留言输入框 -->
+    <view class="card" wx:if="{{commentEnabled}}">
+      <view class="section-title">留言</view>
+      <textarea
+        class="message-input"
+        placeholder="好不好玩？或者要扩列？什么都可以写哦。"
+        placeholder-style="text-align:left; line-height:1.6; color:#aaa;"
+        auto-height
+        maxlength="200"
+        value="{{message}}"
+        bindinput="onMessageInput"
+        show-confirm-bar="true"
+      ></textarea>
+    </view>
+
+    <!-- ⑤ 发布按钮 -->
+    <button class="btn btn-primary btn-full"
+            loading="{{publishing}}"
+            bindtap="onPublish">
+      上传
+    </button>
+
+    <!-- ⑥ 注意事项 -->
+    <view class="card notice-box" wx:if="{{commentEnabled}}">
+      <view class="section-title">注意事项</view>
+      <view class="notice-item">
+        1、目前功能还在内测中，可能会出现奇怪的 bug，如有问题请报告给群主。如果您的照片点赞小于二，那么将在一周后删除。
+      </view>
+      <view class="notice-item">
+        2、图片需带任意毛绒娃娃，角色、地点需正确选择。
+      </view>
+      <view class="notice-item">
+        3、上传的图片都需要审核，请联系管理员。
+      </view>
+      <view class="notice-item">
+        4、上传内容需遵守法律法规，违规内容将被删除。
+      </view>
+    </view>
+
+    <!-- ⑦ 用户头像与昵称 -->
+    <view class="card user" wx:if="{{commentEnabled}}">
+      <image class="avatar"
+             src="{{ user.avatarUrlResolved || user.avatarUrl || user.avatar || '/assets/avatar-placeholder.png' }}"
+             mode="aspectFill"></image>
+      <text class="nickname">{{ user.nickname || '未登录' }}</text>
+    </view>
+
+    <!-- ⑧ 底部返回按钮 -->
+    <button class="btn btn-ghost btn-full" bindtap="goBack" wx:if="{{commentEnabled}}">
+      返回
+    </button>
+
+  </view>
+</view>
+
+<!-- ⑨ 角色多选面板（半屏，可滚动） -->
+<view wx:if="{{commentEnabled && (showRolePanel || closingRolePanel)}}"
+      class="mask {{closingRolePanel ? 'mask-out' : 'mask-in'}}"
+      catchtouchmove="noop"
+      bindtap="closeRolePanel">
+
+  <view class="sheet {{closingRolePanel ? 'sheet-out' : 'sheet-in'}}"
+        catchtap="noop">
+
+    <view class="sheet-header">
+      选择角色（可多选）
+      <text class="sheet-sub">已选 {{selectedRoleIds.length}} 个</text>
+    </view>
+
+    <scroll-view class="sheet-body" scroll-y="true">
+      <checkbox-group bindchange="onRoleCheckChange">
+        <block wx:for="{{roleList}}" wx:key="id">
+          <label class="pick-item">
+            <checkbox value="{{item.id}}"
+                      checked="{{checkedRoleIdSet[item.id]}}"></checkbox>
+            <text class="pick-name">{{item.name}}</text>
+          </label>
+        </block>
+      </checkbox-group>
+    </scroll-view>
+
+    <view class="sheet-actions">
+      <button class="btn btn-ghost btn-mini" hover-class="none" size="mini" bindtap="closeRolePanel">取消</button>
+      <button class="btn btn-primary btn-mini" hover-class="none" size="mini" bindtap="confirmRoleSelection">确定</button>
+    </view>
+  </view>
+</view>
+
+<!-- ⑩ 活动单选面板（可留空） -->
+<view wx:if="{{commentEnabled && (showActivityPanel || closingActivityPanel)}}"
+      class="mask {{closingActivityPanel ? 'mask-out' : 'mask-in'}}"
+      catchtouchmove="noop"
+      bindtap="closeActivityPanel">
+
+  <view class="sheet {{closingActivityPanel ? 'sheet-out' : 'sheet-in'}}"
+        catchtap="noop">
+
+    <view class="sheet-header">选择活动（可留空）</view>
+
+    <scroll-view class="sheet-body" scroll-y="true">
+      <radio-group bindchange="onActivityChange">
+        <block wx:for="{{activityList}}" wx:key="id">
+          <label class="pick-item">
+            <radio value="{{item.id}}"
+                   checked="{{item.id === selectedActivityId}}"></radio>
+            <text class="pick-name">{{item.name}}</text>
+          </label>
+        </block>
+      </radio-group>
+    </scroll-view>
+
+    <view class="sheet-actions">
+      <button class="btn btn-ghost btn-mini" hover-class="none" size="mini" bindtap="clearActivitySelection">清空</button>
+      <button class="btn btn-primary btn-mini" hover-class="none" size="mini" bindtap="confirmActivitySelection">确定</button>
+    </view>
+  </view>
+</view>

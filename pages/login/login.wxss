@@ -1,0 +1,50 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background-color: #aa66dd;
+  padding-top: 300rpx; /* 整体下移 */
+  box-sizing: border-box;
+}
+
+.logo {
+  width: 60%;
+  max-width: 480rpx;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 60rpx;
+}
+
+.welcome-text {
+  font-size: 56rpx; /* 字体更大 */
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 80rpx; /* 间距变小 */
+  text-align: center;
+}
+
+.btn-login {
+  width: 70%;
+  height: 88rpx;
+  background: #ffffff;
+  color: #aa66dd;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+
+  /* 垂直水平居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.btn-login:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}

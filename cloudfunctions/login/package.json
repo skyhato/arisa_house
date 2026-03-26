@@ -1,0 +1,10 @@
+{
+  "name": "login",
+  "version": "1.0.0",
+  "description": "微信云函数：用户登录注册",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

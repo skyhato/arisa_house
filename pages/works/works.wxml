@@ -1,0 +1,71 @@
+<!-- 顶栏保留你原样 -->
+<view class="global-header">我的作品</view>
+
+<!-- 页面主体 -->
+<view class="container works-page">
+
+  <block wx:if="{{works.length}}">
+    <block wx:for="{{works}}" wx:key="_id" wx:for-item="w">
+      <view class="card">
+
+        <!-- 顶部：图片区域（占卡片约2/3） -->
+        <view class="thumb-wrap">
+          <image
+            class="thumb-img"
+            src="{{w.thumbUrl}}"
+            mode="aspectFill"
+            data-id="{{w._id}}"
+            bindtap="openPhoto"
+            lazy-load="true"
+          />
+          <!-- ✅ 交界渐变层 -->
+          <view class="thumb-fade"></view>
+        </view>
+
+        <!-- 下方：文字信息 -->
+        <view class="info">
+          <view class="row label">地点</view>
+          <view class="row one-line">{{ w.locationName ? w.locationName : '未填写' }}</view>
+
+          <view class="row label">留言</view>
+          <view class="row one-line">{{ w.message ? w.message : '（无）' }}</view>
+
+          <view class="row label">角色</view>
+          <view class="role-tags">
+            <block wx:if="{{w._roleTagsShow && w._roleTagsShow.length}}">
+              <block wx:for="{{w._roleTagsShow}}" wx:key="*this">
+                <text class="tag">{{item}}</text>
+              </block>
+              <text wx:if="{{w._roleTagsMore}}" class="tag tag--more">...</text>
+            </block>
+            <block wx:else>
+              <text class="tag tag--empty">未选择</text>
+            </block>
+          </view>
+
+          <view class="row status-row">
+            状态：
+            <text class="status {{w.statusText === '已审核' ? 'status--approved' : (w.statusText === '已驳回' ? 'status--rejected' : 'status--pending')}}">
+              {{w.statusText}}
+            </text>
+            <text class="time-text">{{w.createdAtText}}</text>
+          </view>
+
+          <!-- 最底部按钮 -->
+          <view class="btn-row">
+            <button class="btn btn-view"   data-id="{{w._id}}" bindtap="openPhoto">编辑</button>
+            <button class="btn btn-delete" data-id="{{w._id}}" bindtap="deleteWork">删除</button>
+          </view>
+        </view>
+
+      </view>
+    </block>
+  </block>
+
+  <view wx:else class="empty">暂无作品</view>
+
+  <!-- 底部返回按钮（若你已有可删除此段） -->
+  <view class="footer">
+    <view class="back-btn" bindtap="goBack">返回</view>
+  </view>
+</view>

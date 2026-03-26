@@ -1,0 +1,126 @@
+/* 页面容器：改为弹性布局，顶部/底部用内边距避开固定栏 */
+.notice-page {
+  min-height: 100vh;
+  background: #dfc9f1;          /* 与 app.wxss 一致的淡紫 */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: 200rpx;           /* 顶部留给 .global-header */
+  padding-bottom: 160rpx;        /* 底部留给返回按钮 */
+}
+
+/* 列表：自适应填满中间区域 */
+.list {
+  flex: 1;
+  min-height: 0;                 /* 允许 flex 子项在容器内滚动 */
+  padding: 0 24rpx 24rpx 24rpx;
+  box-sizing: border-box;
+}
+
+/* 卡片：统一 50rpx 圆角，居中且不撑满屏 */
+.card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 50rpx;          /* 统一 50 圆角 */
+  box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.08);
+  padding: 24rpx;
+  margin: 0 auto 24rpx;
+  width: 95%;
+  max-width: 700rpx;
+}
+
+/* 左侧点赞者头像 */
+.avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background: #eee;
+}
+
+/* 中间文案 */
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.line1 {
+  font-size: 30rpx;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nick { font-weight: 600; }
+
+.meta {
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+/* 右侧缩略图正方形 */
+.thumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  margin-left: 20rpx;
+  background: #f0f0f0;
+}
+
+/* 空态与加载更多 */
+.empty {
+  margin-top: 40rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.load-more {
+  text-align: center;
+  color: #3b82f6;
+  font-size: 28rpx;
+  padding: 24rpx 0 12rpx 0;
+}
+
+/* 底部固定返回按钮：保持你原样式 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  z-index: 99;
+}
+
+.back-btn {
+  width: 320rpx;
+  background: #aa66dd;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 50rpx;
+  box-shadow: 0 6rpx 16rpx rgba(170,102,221,0.35);
+}
+.back-btn:active { background: #9b55cc; }

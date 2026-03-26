@@ -1,0 +1,111 @@
+<navigation-bar title="有咲的旅行" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+
+<canvas id="markerCanvas" type="2d"
+        style="position:absolute;left:-9999px;top:-9999px;width:120px;height:120px;"></canvas>
+
+<view class="page">
+
+  <!-- ✅ 顶部统计文字（只显示视口内数量） -->
+  <view class="photo-count">
+    <view>当前区域有 {{visibleCount}} 张照片</view>
+    <view class="photo-count-sub">{{ isLoadingMarkers ? '加载中...' : ('展示前' + markers.length + '张照片') }}</view>
+  </view>
+
+  <!-- 查看当前区域图片按钮（放在统计文字下） -->
+  <view class="photo-tools">
+    <button class="btn region-btn" bindtap="openRegionPanel">查看当前区域的图片</button>
+  </view>
+
+  <!-- 地图：固定中国大致中心 -->
+  <map
+    id="map"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    bindmarkertap="onMarkerTap"
+    bindregionchange="onRegionChange"
+    style="width: 100vw; height: 100vh;">
+  </map>
+
+  <!-- 左下角：进入猜猜宝页面的按钮 -->
+  <view class="fab fab-guess" bindtap="goToGuess">
+    <!-- PNG 先留空，后面你换成真实路径即可 -->
+    <image class="fab-guess-icon" src="cloud://cloud1-5gpzszjh5b3c4a84.636c-cloud1-5gpzszjh5b3c4a84-1385178608/images/logo1.png" mode="aspectFit"></image>
+  </view>
+  <!-- 活动按钮（在刷新按钮上方） -->
+  <view class="fab fab-activity" bindtap="goToActivity">
+    <text class="fab-text">活动</text>
+  </view>
+
+  <!-- 刷新按钮（在随机按钮上方） -->
+  <view class="fab fab-refresh" bindtap="onRefreshRegionTap">
+    <text class="fab-text">刷新</text>
+  </view>
+
+  <!-- 随机按钮（原筛选按钮，在发布按钮上方） -->
+  <view class="fab fab-filter" bindtap="applyFilter">
+    <text class="fab-text">随机</text>
+  </view>
+
+  <!-- 发布按钮 -->
+  <view class="fab fab-publish" bindtap="goToPublish">
+    <text class="plus">＋</text>
+  </view>
+
+  <!-- 角色筛选面板（多选） -->
+  <view class="mask" wx:if="{{showFilterPanel}}" bindtap="closeFilter"></view>
+  <view class="filter-panel" wx:if="{{showFilterPanel}}">
+    <view class="panel-title">按角色筛选</view>
+
+    <checkbox-group bindchange="onRoleCheckChange">
+      <scroll-view class="panel-body" scroll-y>
+        <label class="role-item" wx:for="{{roleList}}" wx:key="id">
+          <checkbox
+            value="{{item.id}}"
+            checked="{{checkedRoleIdSet[item.id]}}"
+          />
+          <text class="role-name">{{item.name}}</text>
+        </label>
+      </scroll-view>
+    </checkbox-group>
+
+    <view class="panel-actions">
+      <button class="btn ghost" bindtap="resetFilter">重置</button>
+      <button class="btn primary" bindtap="applyFilter">应用</button>
+    </view>
+  </view>
+
+</view>
+
+<!-- 当前区域图片 半屏弹层 -->
+<view class="mask" wx:if="{{showRegionPanel}}" bindtap="closeRegionPanel"></view>
+<view class="region-panel" wx:if="{{showRegionPanel}}" catchtap="noop">
+  <view class="region-header">
+    <text>当前区域（{{regionPhotos.length}}）</text>
+  </view>
+
+  <!-- 两列网格缩略图 -->
+  <scroll-view scroll-y class="region-body">
+    <view class="grid">
+      <block wx:for="{{regionPhotos}}" wx:key="id">
+        <view class="grid-item" data-id="{{item.id}}" bindtap="onRegionPhotoTap">
+          <image class="grid-thumb" src="{{item.thumb}}" mode="aspectFill"></image>
+          <view class="grid-caption">{{item.locationName || '未命名地点'}}</view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="region-footer">
+    <button class="btn back-btn" bindtap="closeRegionPanel">返回</button>
+  </view>
+</view>
+
+<!-- 广告弹窗：点击任意位置关闭 / 切下一张 -->
+<view wx:if="{{showAd}}" class="ad-mask" bindtap="onAdClose">
+  <view class="ad-card">
+    <image class="ad-img" src="{{adImageUrl}}" mode="widthFix"></image>
+    <view class="ad-close">×</view>
+  </view>
+</view>
