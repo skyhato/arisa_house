@@ -337,6 +337,23 @@ button::after { border: none !important; }
   min-width: 0;
 }
 
+/* 审核关闭时显示 */
+.closed-wrap {
+  min-height: calc(100vh - 100rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.closed-text {
+  font-size: 36rpx;
+  color: #333;
+  font-weight: 700;
+  text-align: center;
+}
+
 /* 进出场动画 */
 .mask-in { animation: maskIn .18s ease-out forwards; }
 .mask-out { animation: maskOut .18s ease-in forwards; }
