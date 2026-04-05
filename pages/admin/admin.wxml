@@ -2,14 +2,45 @@
 <view class="works-page">
   <view class="header">审核管理</view>
 
+  <!-- 搜索区 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      type="number"
+      placeholder="输入照片ID搜索"
+      value="{{searchKey}}"
+      bindinput="onSearchInput"
+      confirm-type="search"
+      bindconfirm="onSearchConfirm"
+    />
+    <button class="search-btn" bindtap="onSearchConfirm">搜索</button>
+    <button
+      wx:if="{{searchKey || searchPhotoId}}"
+      class="clear-btn"
+      bindtap="onClearSearch"
+    >
+      清空
+    </button>
+  </view>
+
+  <!-- 顶部工具栏 -->
   <view class="toolbar">
     <button
       class="batch-btn"
       bindtap="approveAllPending"
       loading="{{batchLoading}}"
-      disabled="{{batchLoading || !hasPending}}"
+      disabled="{{batchLoading || !hasPending || fixIdLoading}}"
     >
       {{ batchLoading ? '批量审核中...' : (hasPending ? '一键通过全部未审核' : '暂无待审核') }}
+    </button>
+
+    <button
+      class="fixid-btn"
+      bindtap="runFixPublishPhotoId"
+      loading="{{fixIdLoading}}"
+      disabled="{{fixIdLoading || batchLoading || loading}}"
+    >
+      {{ fixIdLoading ? '执行中...' : '补图片ID' }}
     </button>
   </view>
 
@@ -25,9 +56,10 @@
           bindtap="previewImage"
         />
 
-        <!-- 右侧仅保留：时间/地点/上传者/活动/角色(roleNames) -->
+        <!-- 右侧信息 -->
         <view class="info">
           <view class="meta">
+            <view class="row">照片ID：{{item.photoId || '未分配'}}</view>
             <view class="row">上传者：{{item.nickname || '匿名用户'}}</view>
             <view class="row">地点：{{item.locationName || '未知'}}</view>
             <view class="row">活动：{{item.activityName || '（无）'}}</view>
@@ -62,7 +94,7 @@
     </block>
   </block>
 
-  <view wx:if="{{works.length > 0}}">
+  <view wx:if="{{works.length > 0 && !searchPhotoId}}">
     <view wx:if="{{hasMore}}" class="load-more-wrapper">
       <button
         class="load-more-btn"
@@ -79,7 +111,9 @@
   </view>
 
   <block wx:if="{{works.length === 0}}">
-    <view class="empty">暂无作品</view>
+    <view class="empty">
+      {{ searchPhotoId ? '未找到该照片ID对应的作品' : '暂无作品' }}
+    </view>
   </block>
 
   <view class="footer">

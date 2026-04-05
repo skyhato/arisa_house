@@ -34,5 +34,4 @@
   "libVersion": "3.10.3",
   "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
   "cloudfunctionRoot": "cloudfunctions/"
-
 }

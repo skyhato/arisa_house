@@ -1,14 +1,19 @@
 // 云函数：createPublish
 // 作用：创建一条发布记录到 publish 集合（✅已补上 activityId / activityName 写入）
+// 新增：每次新上传自动分配自增 photoId
 
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _  = db.command;
 
-const COLLECTION_PUBLISH = 'publish';
-const COLLECTION_USERS   = 'users';
-const COLLECTION_ROLES   = 'roles';
+const COLLECTION_PUBLISH  = 'publish';
+const COLLECTION_USERS    = 'users';
+const COLLECTION_ROLES    = 'roles';
+
+// ✅ 新增：图片ID计数器集合
+const COLLECTION_COUNTERS = 'counters';
+const PHOTO_ID_COUNTER_ID = 'publish_photo_id';
 
 // ==== 可调参数 ====
 const REQUIRE_CLOUD_FILEID = true;        // 若要求图片必须是 cloud:// 文件ID，设为 true；如接受 https 则设为 false
@@ -147,7 +152,6 @@ exports.main = async (event, context) => {
   const now = Date.now();
   const todayStr = getTodayStr(now);
 
-  // 兼容字符串 / Date 两种存储方式
   const publishUnlimitedStr = normDateFieldToStr(userProfile.publishUnlimitedDate);
   const adUnlimitedStr      = normDateFieldToStr(userProfile.adUnlimitedDate);
 
@@ -270,16 +274,17 @@ exports.main = async (event, context) => {
     userIdFromClient ||
     OPENID;
 
-  // —— 10.5) ✅ 活动字段规范化（防脏数据/乱码）
+  // —— 10.5) 活动字段规范化 ——
   const actId = String(activityId || '').trim();
   let actName = String(activityName || '').trim();
-  // 如果只传了 name 没传 id，则当作未选择活动（避免出现奇怪的 activityName）
   if (!actId) actName = '';
 
-  // —— 11) 组装记录并写库 ——
+  // —— 11) 组装记录（这里只是准备，不直接写库） ——
   const nowDate = new Date(now);
 
   const record = {
+    // ✅ 新增：photoId 会在事务里写入
+
     // 文件主键：云 fileID
     originFileID,
     thumbFileID,
@@ -294,7 +299,7 @@ exports.main = async (event, context) => {
     roleIds: normRoleIds,
     roleNames: finalRoleNames,
 
-    // ✅ 活动（可选）
+    // 活动（可选）
     activityId: actId,
     activityName: actName,
 
@@ -322,14 +327,52 @@ exports.main = async (event, context) => {
     createdAt: nowDate,
     updatedAt: nowDate,
 
-    // 新增：方便做“按日统计”的字段
+    // 方便做“按日统计”
     dayStr: todayStr
   };
 
+  // —— 12) ✅ 新增：事务中分配 photoId 并写入 publish ——
+  let tx = null;
   try {
-    const addRes = await db.collection(COLLECTION_PUBLISH).add({ data: record });
-    return { ok: true, id: addRes._id, msg: '发布成功，等待审核' };
+    tx = await db.startTransaction();
+
+    let counterDoc;
+    try {
+      const counterRes = await tx.collection(COLLECTION_COUNTERS).doc(PHOTO_ID_COUNTER_ID).get();
+      counterDoc = counterRes.data || null;
+    } catch (e) {
+      throw new Error('请先初始化 counters 集合中的 publish_photo_id 计数器');
+    }
+
+    const currentPhotoId = Number(counterDoc && counterDoc.value) || 0;
+    const nextPhotoId = currentPhotoId + 1;
+
+    await tx.collection(COLLECTION_COUNTERS).doc(PHOTO_ID_COUNTER_ID).update({
+      data: {
+        value: nextPhotoId,
+        updatedAt: now
+      }
+    });
+
+    const addRes = await tx.collection(COLLECTION_PUBLISH).add({
+      data: {
+        ...record,
+        photoId: nextPhotoId
+      }
+    });
+
+    await tx.commit();
+
+    return {
+      ok: true,
+      id: addRes._id,
+      photoId: nextPhotoId,
+      msg: '发布成功，等待审核'
+    };
   } catch (err) {
+    if (tx) {
+      try { await tx.rollback(); } catch (_) {}
+    }
     return { ok: false, code: 'DB_FAIL', msg: err.message || '数据库写入失败' };
   }
 };

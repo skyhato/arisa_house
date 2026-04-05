@@ -26,6 +26,7 @@ const TEMP_URL_FALLBACK_TTL_MS  = 12 * 60 * 60 * 1000; // 12小时（getTempFile
 Page({
   data: {
     photoId: '',
+    displayPhotoId: '',
 
     // 用户
     avatarUrl: '',
@@ -250,7 +251,6 @@ Page({
     try {
       const res = await db.collection(COLLECTION_USERS).where({ openid: String(openid) }).limit(1).get();
       const u = (res.data && res.data[0]) || null;
-      if (!u) return '';
       // users 表字段兜底
       const avatar = u.avatarUrl || u.avatar || u.avatarFileID || '';
 
@@ -530,6 +530,8 @@ Page({
       const isFeatured = !!(p.isFeatured || p.featured);
 
       this.setData({
+        displayPhotoId: p.photoId || '',
+
         imageUrl,
         avatarUrl,
         rawNickname,

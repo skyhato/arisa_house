@@ -1,13 +1,13 @@
 // pages/admin/admin.js
 // 审核页：PENDING / APPROVED 列表 + 审核通过 / 退回 / 删除
-// 只展示：上传者、地点、活动、角色(roleNames)、上传时间
+// 新增：调用 fixPublishPhotoId、按 photoId 精确搜索
 
 const COLLECTION_PUBLISH = 'publish';
 
 /** ===== 性能相关常量 ===== */
-const TEMP_URL_CACHE_TTL = 25 * 60 * 1000; // 25分钟
-const TEMP_URL_BATCH_SIZE = 50;            // 分批换临时链接
-const APPROVE_CONCURRENCY = 4;             // 一键审核并发
+const TEMP_URL_CACHE_TTL = 25 * 60 * 1000;
+const TEMP_URL_BATCH_SIZE = 50;
+const APPROVE_CONCURRENCY = 4;
 
 Page({
   data: {
@@ -25,16 +25,20 @@ Page({
     hasPending: false,
     batchLoading: false,
 
+    // 补图片ID
+    fixIdLoading: false,
+
+    // 搜索
+    searchKey: '',
+    searchPhotoId: null,
+
     // 登录 & 权限状态
     isAdmin: false
   },
 
   onLoad() {
-    // fileID -> { url, expireAt }
     this._tempUrlCache = new Map();
-    // 降级方案B用：PENDING 总数缓存（reset 时清掉）
     this._pendingCountCache = null;
-
     this.checkAdminAndLoad();
   },
 
@@ -42,6 +46,101 @@ Page({
     if (this.data.isAdmin) {
       this.loadWorks(true, false);
     }
+  },
+
+  onSearchInput(e) {
+    this.setData({
+      searchKey: (e.detail.value || '').trim()
+    });
+  },
+
+  onSearchConfirm() {
+    const key = String(this.data.searchKey || '').trim();
+
+    if (!key) {
+      this.onClearSearch();
+      return;
+    }
+
+    if (!/^\d+$/.test(key)) {
+      wx.showToast({ title: '请输入正确的照片ID', icon: 'none' });
+      return;
+    }
+
+    this.setData({
+      searchPhotoId: Number(key)
+    }, () => {
+      this.loadWorks(true, true);
+    });
+  },
+
+  onClearSearch() {
+    this.setData({
+      searchKey: '',
+      searchPhotoId: null
+    }, () => {
+      this.loadWorks(true, true);
+    });
+  },
+
+  async runFixPublishPhotoId() {
+    if (this.data.fixIdLoading) return;
+
+    wx.showModal({
+      title: '确认执行',
+      content: '将调用 fixPublishPhotoId 云函数。请先确认云函数里的 DRY_RUN 设置是否正确。继续吗？',
+      confirmText: '执行',
+      success: async (r) => {
+        if (!r.confirm) return;
+
+        this.setData({ fixIdLoading: true });
+        wx.showLoading({
+          title: '执行中...',
+          mask: true
+        });
+
+        try {
+          const res = await wx.cloud.callFunction({
+            name: 'fixPublishPhotoId',
+            data: {}
+          });
+
+          const result = res.result || {};
+          console.log('[admin] fixPublishPhotoId result:', result);
+
+          wx.hideLoading();
+
+          wx.showModal({
+            title: result.dryRun ? '试跑完成' : '执行完成',
+            content:
+              '模式：' + (result.dryRun ? '试跑' : '正式执行') +
+              '\n总图片：' + (result.totalDocsBefore ?? '-') +
+              '\n已有 photoId：' + (result.alreadyHasPhotoId ?? '-') +
+              '\n待补数量：' + (result.needFillCount ?? '-') +
+              '\n编号范围：' + (
+                Array.isArray(result.photoIdRangeToWrite) && result.photoIdRangeToWrite.length === 2
+                  ? `${result.photoIdRangeToWrite[0]} - ${result.photoIdRangeToWrite[1]}`
+                  : '-'
+              ),
+            showCancel: false
+          });
+
+          if (!result.dryRun) {
+            this.loadWorks(true, false);
+          }
+        } catch (err) {
+          wx.hideLoading();
+          console.error('[admin] fixPublishPhotoId error:', err);
+          wx.showModal({
+            title: '执行失败',
+            content: err.message || JSON.stringify(err),
+            showCancel: false
+          });
+        } finally {
+          this.setData({ fixIdLoading: false });
+        }
+      }
+    });
   },
 
   /** 先检查是否登录，再调用 checkAdmin 云函数判定权限 */
@@ -155,18 +254,15 @@ Page({
     return r.total || 0;
   },
 
-  /**
-   * 分页读取：优先 PENDING，再 APPROVED
-   * 优先尝试多重排序（status desc, createdAt desc），若不支持则降级为“双查询合并”
-   */
-  async _fetchWorksPage(skip, limit) {
-    const db = wx.cloud.database();
-    const _ = db.command;
+  _buildFields() {
+    return {
+      photoId: true,
 
-    // 只取审核页需要的字段：上传者/地点/活动/角色(roleNames)/时间/缩略图/状态
-    const fields = {
+      roundThumbUrl: true,
+      roundThumbFileID: true,
       thumbUrl: true,
       thumbFileID: true,
+      originUrl: true,
       originFileID: true,
 
       nickname: true,
@@ -175,15 +271,40 @@ Page({
       activityId: true,
       activityName: true,
 
-      roleNames: true,     // 只保留 roleNames
+      roleNames: true,
       status: true,
 
       createdAt: true,
       createTime: true,
       dayStr: true
     };
+  },
 
-    // —— 方案A：尝试 status desc + createdAt desc（PENDING 会排在前面）
+  async _searchByPhotoId(photoId) {
+    const db = wx.cloud.database();
+    const _ = db.command;
+
+    const res = await db.collection(COLLECTION_PUBLISH)
+      .where({
+        status: _.in(['PENDING', 'APPROVED']),
+        photoId: Number(photoId)
+      })
+      .field(this._buildFields())
+      .limit(1)
+      .get();
+
+    return res.data || [];
+  },
+
+  /**
+   * 分页读取：优先 PENDING，再 APPROVED
+   * 优先尝试多重排序（status desc, createdAt desc），若不支持则降级为“双查询合并”
+   */
+  async _fetchWorksPage(skip, limit) {
+    const db = wx.cloud.database();
+    const _ = db.command;
+    const fields = this._buildFields();
+
     try {
       const res = await db.collection(COLLECTION_PUBLISH)
         .where({ status: _.in(['PENDING', 'APPROVED']) })
@@ -199,7 +320,6 @@ Page({
       console.warn('[admin] multi-orderBy unsupported, fallback merge:', e);
     }
 
-    // —— 方案B：降级为“双查询合并”，正确处理 skip/limit
     let pendingCount = 0;
     if (typeof this._pendingCountCache === 'number') {
       pendingCount = this._pendingCountCache;
@@ -217,8 +337,8 @@ Page({
       }
     }
 
-    const pendingSkip  = Math.min(skip, pendingCount);
-    const pendingTake  = Math.max(Math.min(limit, pendingCount - pendingSkip), 0);
+    const pendingSkip = Math.min(skip, pendingCount);
+    const pendingTake = Math.max(Math.min(limit, pendingCount - pendingSkip), 0);
     const approvedSkip = Math.max(skip - pendingCount, 0);
     const approvedTake = Math.max(limit - pendingTake, 0);
 
@@ -259,15 +379,21 @@ Page({
   async _normalizeWorksList(rawList) {
     if (!rawList || rawList.length === 0) return [];
 
-    // 去重收集 fileID，减少 getTempFileURL 压力
     const fileIdSet = new Set();
+
     rawList.forEach(w => {
-      if (!w.thumbUrl) {
-        const fid =
-          (typeof w.thumbFileID === 'string' && w.thumbFileID.startsWith('cloud://') && w.thumbFileID) ||
-          (typeof w.originFileID === 'string' && w.originFileID.startsWith('cloud://') && w.originFileID) ||
-          '';
-        if (fid) fileIdSet.add(fid);
+      const thumbFid =
+        (typeof w.roundThumbFileID === 'string' && w.roundThumbFileID.startsWith('cloud://') && w.roundThumbFileID) ||
+        (typeof w.thumbFileID === 'string' && w.thumbFileID.startsWith('cloud://') && w.thumbFileID) ||
+        (typeof w.originFileID === 'string' && w.originFileID.startsWith('cloud://') && w.originFileID) ||
+        '';
+
+      if (
+        !w.roundThumbUrl &&
+        !w.thumbUrl &&
+        thumbFid
+      ) {
+        fileIdSet.add(thumbFid);
       }
     });
 
@@ -275,34 +401,36 @@ Page({
     const id2url = fileIds.length ? await this._toTempUrls(fileIds) : {};
 
     const works = rawList.map(w => {
-      let thumbUrl = w.thumbUrl || '';
+      let thumbUrl = w.roundThumbUrl || w.thumbUrl || '';
+
       if (!thumbUrl) {
         const fid =
+          (typeof w.roundThumbFileID === 'string' && w.roundThumbFileID) ||
           (typeof w.thumbFileID === 'string' && w.thumbFileID) ||
           (typeof w.originFileID === 'string' && w.originFileID) ||
           '';
+
         if (fid && fid.startsWith('cloud://')) {
           thumbUrl = id2url[fid] || '';
         }
       }
 
-      // 角色：只显示 roleNames
       const roleNamesArr = Array.isArray(w.roleNames) ? w.roleNames : (w.roleNames ? [w.roleNames] : []);
       const roleNamesText = roleNamesArr.filter(Boolean).map(String).join('、');
 
-      // 活动：直接用 publish 存的 activityName
       const activityName = (w.activityName || '').trim();
-
-      // 时间：优先 createdAt/createTime（更精确），兜底 dayStr
       const rawTs = w.createdAt || w.createTime || null;
       const createdAtText = rawTs ? this._fmtTime(rawTs) : (w.dayStr || '');
 
       return {
         _id: String(w._id || w.id || ''),
         id: String(w._id || w.id || ''),
+        photoId: w.photoId,
         status: w.status || 'PENDING',
 
         thumbUrl: thumbUrl || this.data.defaultThumb,
+        originUrl: w.originUrl || '',
+        originFileID: w.originFileID || '',
 
         nickname: w.nickname || '匿名用户',
         locationName: w.locationName || '未知',
@@ -324,7 +452,7 @@ Page({
     this.setData({ loading: true });
 
     try {
-      let { page, pageSize, total, hasMore } = this.data;
+      let { page, pageSize, total, hasMore, searchPhotoId } = this.data;
 
       if (reset) {
         page = 0;
@@ -332,6 +460,22 @@ Page({
         hasMore = true;
         this._pendingCountCache = null;
         this.setData({ works: [], page, total, hasMore });
+      }
+
+      // 搜索模式：按 photoId 精确查找，不走分页
+      if (searchPhotoId) {
+        const raw = await this._searchByPhotoId(searchPhotoId);
+        const normalized = await this._normalizeWorksList(raw);
+        const hasPending = normalized.some(w => w.status === 'PENDING');
+
+        this.setData({
+          works: normalized,
+          page: 1,
+          total: normalized.length,
+          hasMore: false,
+          hasPending
+        });
+        return;
       }
 
       if (!hasMore && !reset) return;
@@ -377,6 +521,51 @@ Page({
 
   onLoadMore() {
     this.loadWorks(false, true);
+  },
+
+  previewImage(e) {
+    const id = e?.currentTarget?.dataset?.id;
+    if (!id) return;
+
+    const item = (this.data.works || []).find(w => w._id === id);
+    if (!item) return;
+
+    if (item.originUrl) {
+      wx.previewImage({
+        current: item.originUrl,
+        urls: [item.originUrl]
+      });
+      return;
+    }
+
+    if (item.originFileID && String(item.originFileID).startsWith('cloud://')) {
+      wx.showLoading({ title: '加载原图...', mask: true });
+      wx.cloud.getTempFileURL({
+        fileList: [item.originFileID]
+      }).then(res => {
+        const file = res.fileList && res.fileList[0];
+        const url = file && file.tempFileURL ? file.tempFileURL : '';
+        if (!url) {
+          wx.showToast({ title: '原图加载失败', icon: 'none' });
+          return;
+        }
+        wx.previewImage({
+          current: url,
+          urls: [url]
+        });
+      }).catch(err => {
+        console.error('[admin] preview origin error:', err);
+        wx.showToast({ title: '原图加载失败', icon: 'none' });
+      }).finally(() => {
+        wx.hideLoading();
+      });
+      return;
+    }
+
+    wx.previewImage({
+      current: item.thumbUrl,
+      urls: [item.thumbUrl]
+    });
   },
 
   /* ===== 审核操作工具函数 ===== */

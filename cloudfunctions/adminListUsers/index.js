@@ -1,3 +1,20 @@
+/**
+ * 云函数：adminListUsers
+ *
+ * 作用：
+ * 1. 管理员分页查看用户列表
+ * 2. 支持按注册时间 / 作品数排序
+ * 3. 支持按昵称 / openid 搜索
+ * 4. 返回 uid、昵称、头像、作品数、注册时间等信息
+ *
+ * 本次优化：
+ * 1. users 查询增加 field，只取必要字段
+ * 2. 前端单页建议 40 条，这里同样限制为 40
+ * 3. 按注册时间排序时，使用 limit(size + 1) 判断 hasMore
+ * 4. total 仅在第一页统计，后续翻页不再重复 count
+ * 5. 按作品数排序时，去掉额外 probe 查询，改为多取 1 条判断 hasMore
+ */
+
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
@@ -8,6 +25,7 @@ const $ = db.command.aggregate
 const USERS = 'users'
 const PUBLISH = 'publish'
 const ADMINS = 'admins'
+const PAGE_LIMIT = 40
 
 function pickCreateTime(u) {
   return (
@@ -27,7 +45,9 @@ function ts2str(t) {
     if (t instanceof Date) ms = t.getTime()
     else if (typeof t === 'number') ms = t
     else ms = new Date(t).getTime()
+
     if (!ms || isNaN(ms)) return '未知'
+
     const d = new Date(ms)
     const y = d.getFullYear()
     const m = String(d.getMonth() + 1).padStart(2, '0')
@@ -38,12 +58,29 @@ function ts2str(t) {
   }
 }
 
+function userField() {
+  return {
+    _id: true,
+    uid: true,
+    openid: true,
+    _openid: true,
+    nickname: true,
+    avatar: true,
+    avatarUrl: true,
+    createdAt: true,
+    createAt: true,
+    createTime: true,
+    _createTime: true,
+    _create_time: true
+  }
+}
+
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
   const {
     page = 0,
-    pageSize = 100,
-    sortMode = 'time',  // 'time' | 'works'
+    pageSize = PAGE_LIMIT,
+    sortMode = 'time', // 'time' | 'works'
     searchKey = ''
   } = event || {}
 
@@ -56,16 +93,17 @@ exports.main = async (event, context) => {
 
   const isAdmin = !!(adminRes.data && adminRes.data.length)
   if (!isAdmin) {
-    return { ok: false, msg: 'no permission', items: [], hasMore: false }
+    return { ok: false, msg: 'no permission', items: [], hasMore: false, total: 0 }
   }
 
-  const size = Math.min(Math.max(1, Number(pageSize) || 100), 100)
+  const size = Math.min(Math.max(1, Number(pageSize) || PAGE_LIMIT), PAGE_LIMIT)
   const curPage = Math.max(0, Number(page) || 0)
   const skip = curPage * size
 
   // ===== 2. 搜索条件 =====
   let userWhere = {}
   const key = String(searchKey || '').trim()
+
   if (key) {
     const reg = db.RegExp({ regexp: key, options: 'i' })
     userWhere = _.or(
@@ -82,27 +120,42 @@ exports.main = async (event, context) => {
       const BATCH = 500
       allowedOpenids = []
       let uSkip = 0
+
       for (;;) {
         const uRes = await db
           .collection(USERS)
           .where(userWhere)
+          .field({
+            openid: true,
+            _openid: true
+          })
           .skip(uSkip)
           .limit(BATCH)
           .get()
+
         const arr = (uRes.data || [])
           .map(u => String(u.openid || u._openid || ''))
           .filter(Boolean)
+
         allowedOpenids.push(...arr)
+
         if (arr.length < BATCH) break
         uSkip += BATCH
         if (allowedOpenids.length >= 10000) break
       }
+
       if (!allowedOpenids.length) {
-        return { ok: true, items: [], hasMore: false, sortMode: 'works' }
+        return {
+          ok: true,
+          items: [],
+          hasMore: false,
+          total: 0,
+          sortMode: 'works'
+        }
       }
     }
 
-    // 3.2 从 publish 聚合：作品数 + 从作品里捞一个昵称兜底
+    // 3.2 从 publish 聚合：作品数 + 作品昵称兜底
     let pipeline = db.collection(PUBLISH).aggregate()
     if (allowedOpenids) {
       pipeline = pipeline.match({
@@ -114,40 +167,22 @@ exports.main = async (event, context) => {
       .group({
         _id: '$openid',
         worksCount: $.sum(1),
-        nicknameFromPublish: $.max('$nickname') // 兜底昵称
+        nicknameFromPublish: $.max('$nickname')
       })
       .sort({ worksCount: -1 })
       .skip(skip)
-      .limit(size)
+      .limit(size + 1)
       .end()
 
-    const groups = pageAgg.list || []
+    const groupsRaw = pageAgg.list || []
+    const hasMore = groupsRaw.length > size
+    const groups = hasMore ? groupsRaw.slice(0, size) : groupsRaw
     const openids = groups.map(g => String(g._id)).filter(Boolean)
 
-    // 3.3 判定 hasMore：探一条下一页
-    let hasMore = false
-    if (groups.length === size) {
-      let probe = db.collection(PUBLISH).aggregate()
-      if (allowedOpenids) {
-        probe = probe.match({
-          openid: _.in(allowedOpenids)
-        })
-      }
-      const probeRes = await probe
-        .group({
-          _id: '$openid',
-          worksCount: $.sum(1)
-        })
-        .sort({ worksCount: -1 })
-        .skip(skip + size)
-        .limit(1)
-        .end()
-      hasMore = !!(probeRes.list && probeRes.list.length)
-    }
-
-    // 3.4 拉 users 资料，允许一个 openid 对应多条，优先选“有昵称”的那条
+    // 3.3 拉 users 资料
     const usersMap = {}
     const CHUNK = 100
+
     for (let i = 0; i < openids.length; i += CHUNK) {
       const sub = openids.slice(i, i + CHUNK)
       const uRes = await db
@@ -155,17 +190,19 @@ exports.main = async (event, context) => {
         .where({
           openid: _.in(sub)
         })
+        .field(userField())
         .get()
+
       ;(uRes.data || []).forEach(u => {
         const k = String(u.openid || u._openid || '')
         if (!k) return
+
         const existing = usersMap[k]
         if (!existing) {
           usersMap[k] = u
         } else {
           const oldHasName = !!(existing.nickname && String(existing.nickname).trim())
           const newHasName = !!(u.nickname && String(u.nickname).trim())
-          // 优先选择有昵称的；若旧的没昵称而新的有，就覆盖
           if (!oldHasName && newHasName) {
             usersMap[k] = u
           }
@@ -173,20 +210,20 @@ exports.main = async (event, context) => {
       })
     }
 
-    // 3.5 组装 items（优先 users.nickname，其次作品里的 nicknameFromPublish）
+    // 3.4 组装 items
     const items = groups.map(g => {
       const openid = String(g._id)
       const u = usersMap[openid] || {}
       const createdAt = pickCreateTime(u)
       const nicknameFromUser = (u.nickname && String(u.nickname).trim()) || ''
-      const nicknameFromPublish =
-        (g.nicknameFromPublish && String(g.nicknameFromPublish).trim()) || ''
+      const nicknameFromPublish = (g.nicknameFromPublish && String(g.nicknameFromPublish).trim()) || ''
       const nickname = nicknameFromUser || nicknameFromPublish || ''
 
       return {
         _id: u._id || openid,
+        uid: u.uid,
         openid,
-        nickname,                                   // ✅ 这里不会轻易变成空
+        nickname,
         avatar: u.avatar || u.avatarUrl || '',
         createdAt,
         createTimeStr: ts2str(createdAt),
@@ -194,31 +231,48 @@ exports.main = async (event, context) => {
       }
     })
 
-    return { ok: true, items, hasMore, sortMode: 'works' }
+    return {
+      ok: true,
+      items,
+      hasMore,
+      // works 模式下不强制更新 total，前端会沿用已有值
+      total: undefined,
+      sortMode: 'works'
+    }
   }
 
   // ===== 4. 按注册时间排序 =====
-  const orderField = 'createdAt' // 用这个字段建索引效果最好
-
+  const orderField = 'createdAt'
   const baseQuery = db.collection(USERS).where(userWhere || {})
 
-  const [uRes, totalRes] = await Promise.all([
-    baseQuery
-      .orderBy(orderField, 'desc')
-      .skip(skip)
-      .limit(size)
-      .get(),
-    baseQuery.count()
-  ])
+  const queryPromise = baseQuery
+    .field(userField())
+    .orderBy(orderField, 'desc')
+    .skip(skip)
+    .limit(size + 1)
+    .get()
 
-  const list = (uRes.data || []).map(u => {
+  // 只在第一页查 total，后续翻页不再 count
+  const totalPromise = curPage === 0
+    ? baseQuery.count()
+    : Promise.resolve({ total: undefined })
+
+  const [uRes, totalRes] = await Promise.all([queryPromise, totalPromise])
+
+  const rawList = uRes.data || []
+  const hasMore = rawList.length > size
+  const pageList = hasMore ? rawList.slice(0, size) : rawList
+
+  const list = pageList.map(u => {
     const openid = String(u.openid || u._openid || '')
     const createdAt = pickCreateTime(u)
     const nickname = (u.nickname && String(u.nickname).trim()) || ''
+
     return {
       _id: u._id || openid,
+      uid: u.uid,
       openid,
-      nickname,                                   // ✅ 先用 users.nickname
+      nickname,
       avatar: u.avatar || u.avatarUrl || '',
       createdAt,
       createTimeStr: ts2str(createdAt),
@@ -230,7 +284,7 @@ exports.main = async (event, context) => {
   const pageOpenids = list.map(x => x.openid).filter(Boolean)
 
   if (pageOpenids.length) {
-    // 4.2 一次聚合：作品数 + 作品里的 nickname，用来兜底
+    // 4.2 当前页聚合作品数
     const agg = await db
       .collection(PUBLISH)
       .aggregate()
@@ -251,7 +305,6 @@ exports.main = async (event, context) => {
       }
     })
 
-    // 4.3 给当前页补 worksCount + 兜底昵称
     list.forEach(x => {
       const info = infoMap[x.openid]
       if (!info) return
@@ -262,8 +315,11 @@ exports.main = async (event, context) => {
     })
   }
 
-  const total = totalRes.total || 0
-  const hasMore = skip + list.length < total
-
-  return { ok: true, items: list, hasMore, total, sortMode: 'time' }
+  return {
+    ok: true,
+    items: list,
+    hasMore,
+    total: totalRes.total,
+    sortMode: 'time'
+  }
 }

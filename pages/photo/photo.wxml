@@ -54,6 +54,11 @@
     <view class="card-title">信息</view>
 
     <view class="row">
+      <text class="label">ID：</text>
+      <text class="val">{{displayPhotoId || '未分配'}}</text>
+    </view>
+
+    <view class="row">
       <text class="label">位置：</text>
       <text class="val">{{locationName || '未填写'}}</text>
     </view>
@@ -85,11 +90,11 @@
     <view class="msg">{{message || '（无）'}}</view>
   </view>
 
-  <!-- ⑤ 评论区（受全局开关控制） -->
+  <!--
+  ⑤ 评论区（已注释）
   <view class="card" wx:if="{{commentEnabled}}">
     <view class="card-title">评论</view>
 
-    <!-- 评论列表 -->
     <block wx:if="{{comments && comments.length}}">
       <view class="comment-item" wx:for="{{comments}}" wx:key="_id" wx:for-item="item">
         <image
@@ -106,7 +111,6 @@
         </view>
       </view>
 
-      <!-- 加载更多 -->
       <view
         class="load-more"
         wx:if="{{!commentsFinished}}"
@@ -119,12 +123,10 @@
       </view>
     </block>
 
-    <!-- 无评论 -->
     <view class="comment-empty" wx:else>
       期待您的评论！
     </view>
 
-    <!-- 评论输入框 -->
     <view class="comment-input-row">
       <input
         class="comment-input"
@@ -142,6 +144,7 @@
       </button>
     </view>
   </view>
+  -->
 
   <!-- 管理操作卡片：编辑 + 删除（发布者/管理员可见） -->
   <view class="card delete-card" wx:if="{{canDelete || canEdit}}">
@@ -192,7 +195,6 @@
         <view class="val">（可多选）</view>
       </view>
 
-      <!-- ✅ 改这里：用 _id 作为 data-id 与 checkbox 的 value -->
       <scroll-view scroll-y class="role-scroll" style="max-height:420rpx;padding:16rpx;border:1rpx solid #eef0f3;border-radius:20rpx;background:#f7f8fa;box-sizing:border-box;margin-top:8rpx;">
         <view class="role-list">
           <label

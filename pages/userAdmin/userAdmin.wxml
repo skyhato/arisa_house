@@ -32,6 +32,18 @@
     </view>
   </view>
 
+  <!-- 工具按钮 -->
+  <view class="tool-bar">
+    <button
+      class="btn tool-btn"
+      bindtap="onRunFixUsersUid"
+      loading="{{runningFix}}"
+      disabled="{{runningFix || loading || loadingMore}}"
+    >
+      运行去重补 UID
+    </button>
+  </view>
+
   <!-- 用户列表 -->
   <scroll-view scroll-y class="user-list">
     <block wx:if="{{loading && items.length === 0}}">
@@ -55,6 +67,11 @@
               <view class="nickname">
                 {{item.nickname || '未设置昵称'}}
               </view>
+
+              <view class="meta">
+                <text selectable="true">UID：{{item.uid || '未生成'}}</text>
+              </view>
+
               <view class="meta">
                 <text selectable="true">openid：{{item.openid}}</text>
               </view>
@@ -93,7 +110,7 @@
     </block>
   </scroll-view>
 
-  <!-- ✅ 底部返回栏 + 总数 -->
+  <!-- 底部返回栏 + 总数 -->
   <view class="bottom-bar">
     <button class="btn back-btn" bindtap="onBack">返回</button>
     <text class="user-count">当前共有 {{total}} 位用户</text>
